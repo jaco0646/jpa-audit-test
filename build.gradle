@@ -1,0 +1,39 @@
+plugins {
+    id 'idea'
+    id 'groovy'
+    id 'org.springframework.boot' version "$springBootVersion"
+}
+
+group 'com.stackoverflow'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+springBoot {
+    mainClass.set('spring.Application')
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-starter-validation:$springBootVersion"
+
+    implementation 'javax.xml.bind:jaxb-api:2.3.1'  // required by HibernateJpaConfiguration for bootRun task
+
+    compileOnly 'org.projectlombok:lombok:1.18.20'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+
+    runtimeOnly 'com.h2database:h2:1.4.200'
+
+    testImplementation "org.spockframework:spock-core:$spockVersion"
+    testImplementation "org.spockframework:spock-spring:$spockVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
+}
+
+test {
+    useJUnitPlatform()
+}
