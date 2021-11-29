@@ -1,24 +1,22 @@
 package spring.jpa
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.context.SpringBootTest
 import spock.lang.Specification
 
-@DataJpaTest
-//@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+import javax.transaction.Transactional
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 class AuditingSpec extends Specification {
     @Autowired
     OneToManyRepository repo
 
+    @Transactional
     def "New parent and child are both assigned IDs and dates"() {
         given:
             def parent = new OneToManyEntity()
             def child = new ManyToOneEntity()
             parent.setChildren([child])
-//  Manually setting the parent on the child is a workaround for the @SpringBootTest.
-//  It is not necessary for the @DataJpaTest
-//            child.setParent(parent)
         when:
             def persisted = repo.save(parent)
         then:
@@ -29,6 +27,7 @@ class AuditingSpec extends Specification {
             persistedChild.createdDate == persistedChild.lastModifiedDate
     }
 
+    @Transactional
     def "Appended child is assigned IDs and dates"() {
         given:
             def parent = new OneToManyEntity()
@@ -46,8 +45,8 @@ class AuditingSpec extends Specification {
             secondChild.createdDate == secondChild.lastModifiedDate
     }
 
-    /** This test fails when the class is annotated with {@code @DataJpaTest}.
-     * But it passes when the test is annotated with {@code @SpringBootTest(webEnvironment = NONE)}
+    /** This test cannot be {@code @Transactional} because the {@code @LastModifiedDate} field is only updated by
+     * changes in separate transactions.
      */
     def "LastModifiedDate value is updated"() {
         given:
